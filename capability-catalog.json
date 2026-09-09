@@ -1,0 +1,363 @@
+{
+  "catalog_version": "1.0",
+  "integration_id": "piphi-network-shelly",
+  "coverage_mode": "upstream-surface-accounted-runtime-advertising-gated-by-implementation",
+  "reviewed_at": "2026-09-09",
+  "sources": {
+    "shelly_rpc": "https://shelly-api-docs.shelly.cloud/gen2/General/RPCProtocol/",
+    "shelly_components": "https://shelly-api-docs.shelly.cloud/gen2/ComponentsAndServices/",
+    "shelly_channels": "https://shelly-api-docs.shelly.cloud/gen2/General/RPCChannels/",
+    "homey_reference": "https://homey.app/en-us/app/cloud.shelly.control/Shelly-Control/",
+    "core_vocabulary": "PiPhi Network Core capability and behavior contracts"
+  },
+  "groups": [
+    {
+      "id": "runtime-foundation",
+      "status": "implemented",
+      "scope": [
+        "all-configurations"
+      ],
+      "source_refs": [
+        "core_vocabulary"
+      ],
+      "reason": "The scaffold implements configuration lifecycle, connectivity state, refresh dispatch, and a configuration event.",
+      "state": [
+        "connected"
+      ],
+      "events": [
+        "runtime.config.applied"
+      ],
+      "conditions": [
+        "state_matches"
+      ],
+      "actions": [
+        "refresh"
+      ]
+    },
+    {
+      "id": "discovery-system-and-component-negotiation",
+      "status": "planned",
+      "scope": [
+        "shelly-os-devices"
+      ],
+      "source_refs": [
+        "shelly_rpc",
+        "shelly_components",
+        "shelly_channels"
+      ],
+      "reason": "mDNS, model/generation discovery, authentication, profiles, firmware, component enumeration, and method ACLs must be negotiated per device.",
+      "state": [
+        "device_id",
+        "device_model",
+        "device_generation",
+        "device_name",
+        "firmware_version",
+        "profile",
+        "mac_address",
+        "uptime_seconds",
+        "restart_required",
+        "available_updates",
+        "available_rpc_methods",
+        "component_ids",
+        "last_seen_at"
+      ],
+      "events": [
+        "device.discovered",
+        "device.online",
+        "device.offline",
+        "firmware.update_available",
+        "profile.changed"
+      ],
+      "conditions": [
+        "device_is_online",
+        "firmware_update_is_available",
+        "rpc_method_is_available"
+      ],
+      "actions": [
+        "rescan_components"
+      ]
+    },
+    {
+      "id": "switch-input-cover-and-light-components",
+      "status": "planned",
+      "scope": [
+        "devices-advertising-each-component"
+      ],
+      "source_refs": [
+        "shelly_components",
+        "homey_reference"
+      ],
+      "reason": "Switch, input, cover, light, RGB, RGBW, CCT, and group components need precise component-scoped state and actions.",
+      "state": [
+        "switch_on",
+        "switch_output_percent",
+        "input_state",
+        "input_event_count",
+        "cover_position_percent",
+        "cover_state",
+        "cover_obstruction",
+        "light_on",
+        "light_brightness_percent",
+        "light_color_temperature_k",
+        "light_rgb",
+        "light_white_percent"
+      ],
+      "events": [
+        "switch.changed",
+        "input.changed",
+        "input.button_event",
+        "cover.changed",
+        "cover.obstructed",
+        "light.changed"
+      ],
+      "conditions": [
+        "switch_is_on",
+        "input_is_active",
+        "cover_position_above",
+        "cover_is_obstructed",
+        "light_is_on"
+      ],
+      "actions": [
+        "set_switch",
+        "toggle_switch",
+        "set_cover_position",
+        "open_cover",
+        "close_cover",
+        "stop_cover",
+        "set_light",
+        "set_brightness",
+        "set_color_temperature",
+        "set_rgb"
+      ]
+    },
+    {
+      "id": "power-energy-and-metering",
+      "status": "planned",
+      "scope": [
+        "metering-capable-components"
+      ],
+      "source_refs": [
+        "shelly_components"
+      ],
+      "reason": "PM, EM, EM1, three-phase, energy, frequency, voltage, current, power factor, and reset semantics require channel-aware units and counter handling.",
+      "state": [
+        "active_power_w",
+        "apparent_power_va",
+        "voltage_v",
+        "current_a",
+        "frequency_hz",
+        "power_factor",
+        "energy_total_wh",
+        "energy_returned_wh",
+        "energy_by_minute",
+        "phase_a_power_w",
+        "phase_b_power_w",
+        "phase_c_power_w",
+        "neutral_current_a"
+      ],
+      "events": [
+        "power.changed",
+        "energy.counter_reset",
+        "power.overload"
+      ],
+      "conditions": [
+        "power_above",
+        "voltage_outside",
+        "current_above",
+        "energy_total_above"
+      ],
+      "actions": [
+        "reset_energy_counter"
+      ]
+    },
+    {
+      "id": "environment-climate-and-safety",
+      "status": "planned",
+      "scope": [
+        "sensor-and-thermostat-capable-components"
+      ],
+      "source_refs": [
+        "shelly_components"
+      ],
+      "reason": "Temperature, humidity, illuminance, smoke, flood, gas, thermostat, valve, and device protection fields need component-specific mapping.",
+      "state": [
+        "temperature_c",
+        "humidity_percent",
+        "illuminance_lux",
+        "smoke_detected",
+        "flood_detected",
+        "gas_detected",
+        "thermostat_mode",
+        "thermostat_target_c",
+        "valve_position_percent",
+        "overtemperature",
+        "overvoltage",
+        "overcurrent"
+      ],
+      "events": [
+        "temperature.changed",
+        "humidity.changed",
+        "smoke.detected",
+        "flood.detected",
+        "gas.detected",
+        "protection.triggered",
+        "protection.cleared"
+      ],
+      "conditions": [
+        "temperature_above",
+        "humidity_above",
+        "smoke_is_detected",
+        "flood_is_detected",
+        "thermostat_mode_is"
+      ],
+      "actions": [
+        "set_thermostat_mode",
+        "set_target_temperature",
+        "set_valve_position"
+      ]
+    },
+    {
+      "id": "ble-bthome-zigbee-and-peripherals",
+      "status": "planned",
+      "scope": [
+        "devices-advertising-radio-components"
+      ],
+      "source_refs": [
+        "shelly_components"
+      ],
+      "reason": "BLE gateway, BTHome sensors, Zigbee RPC clusters, range extenders, and dynamic components need bounded discovery and ownership rules.",
+      "state": [
+        "ble_enabled",
+        "ble_gateway_enabled",
+        "bthome_device_count",
+        "bthome_sensor_values",
+        "zigbee_enabled",
+        "zigbee_network_state",
+        "range_extender_enabled"
+      ],
+      "events": [
+        "bthome.device_discovered",
+        "bthome.sensor_changed",
+        "zigbee.device_joined",
+        "zigbee.device_left"
+      ],
+      "conditions": [
+        "ble_gateway_is_enabled",
+        "zigbee_network_is_joined"
+      ],
+      "actions": [
+        "start_bounded_ble_discovery",
+        "permit_zigbee_join"
+      ]
+    },
+    {
+      "id": "schedules-webhooks-mqtt-scripts-and-virtual-components",
+      "status": "planned",
+      "scope": [
+        "devices-advertising-each-service"
+      ],
+      "source_refs": [
+        "shelly_components",
+        "shelly_channels"
+      ],
+      "reason": "Schedules, webhooks, MQTT, scripts, KVS, virtual components, Wi-Fi, Ethernet, and cloud services need least-privilege administration boundaries.",
+      "state": [
+        "schedule_count",
+        "webhook_count",
+        "mqtt_connected",
+        "script_count",
+        "script_running",
+        "virtual_component_count",
+        "wifi_connected",
+        "ethernet_connected",
+        "cloud_connected"
+      ],
+      "events": [
+        "schedule.executed",
+        "webhook.called",
+        "mqtt.connected",
+        "mqtt.disconnected",
+        "script.started",
+        "script.stopped"
+      ],
+      "conditions": [
+        "mqtt_is_connected",
+        "script_is_running",
+        "cloud_is_connected"
+      ],
+      "actions": [
+        "enable_schedule",
+        "disable_schedule",
+        "start_script",
+        "stop_script",
+        "restart_script"
+      ]
+    },
+    {
+      "id": "transport-health-and-recovery",
+      "status": "planned",
+      "scope": [
+        "http-and-mqtt-configurations"
+      ],
+      "source_refs": [
+        "shelly_rpc",
+        "shelly_channels"
+      ],
+      "reason": "RPC request correlation, digest authentication, notifications, reconnect, rate limits, method errors, and reconciliation need bounded operational telemetry.",
+      "state": [
+        "rpc_connected",
+        "rpc_latency_ms",
+        "rpc_error_count",
+        "notification_queue_depth",
+        "notification_queue_capacity",
+        "dropped_notification_count",
+        "last_reconciled_at"
+      ],
+      "events": [
+        "rpc.connected",
+        "rpc.disconnected",
+        "rpc.error",
+        "notification_queue.saturated",
+        "state.resynchronized"
+      ],
+      "conditions": [
+        "rpc_is_healthy",
+        "notification_queue_below",
+        "state_is_stale"
+      ],
+      "actions": [
+        "reconnect_rpc",
+        "resynchronize_state"
+      ]
+    },
+    {
+      "id": "unsafe-or-sensitive-surface",
+      "status": "excluded",
+      "scope": [
+        "all-devices-and-components"
+      ],
+      "source_refs": [
+        "shelly_rpc",
+        "shelly_components"
+      ],
+      "reason": "Passwords, Wi-Fi credentials, TLS material, arbitrary RPC, factory reset, firmware flashing, script source, and unrestricted configuration changes must not be exposed.",
+      "state": [
+        "password",
+        "wifi_password",
+        "tls_private_key",
+        "script_source",
+        "raw_rpc_payload"
+      ],
+      "events": [],
+      "conditions": [],
+      "actions": [
+        "call_arbitrary_rpc",
+        "factory_reset",
+        "reset_wifi_config",
+        "flash_firmware",
+        "upload_script_source",
+        "set_arbitrary_component_config"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "shelly-device",
+  "host": "192.168.1.50",
+  "alias": "Utility Shelly",
+  "username": "admin",
+  "password": "change-me",
+  "protocol": "http",
+  "actions_enabled": false,
+  "allowlisted_component_ids": []
+}
